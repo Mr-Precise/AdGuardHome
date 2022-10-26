@@ -365,7 +365,7 @@ export const NOT_FILTERED = 'NotFiltered';
 export const DISABLED_STATS_INTERVAL = 0;
 export const STATS_INTERVALS_DAYS = [1, 7, 30, 90];
 
-export const QUERY_LOG_INTERVALS_DAYS = [0.25, 1, 7, 30, 90];
+export const QUERY_LOG_INTERVALS_DAYS = [0.25, 1, 3, 7, 30, 90];
 
 export const FILTERS_INTERVALS_HOURS = [0, 1, 12, 24, 72, 168];
 

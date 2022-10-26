@@ -116,12 +116,13 @@ func checkInterval(ivl time.Duration) (ok bool) {
 	const (
 		quarterDay  = timeutil.Day / 4
 		day         = timeutil.Day
+		threedays   = timeutil.Day * 3
 		week        = timeutil.Day * 7
 		month       = timeutil.Day * 30
 		threeMonths = timeutil.Day * 90
 	)
 
-	return ivl == quarterDay || ivl == day || ivl == week || ivl == month || ivl == threeMonths
+	return ivl == quarterDay || ivl == day || ivl == threedays || ivl == week || ivl == month || ivl == threeMonths
 }
 
 func (l *queryLog) WriteDiskConfig(c *Config) {

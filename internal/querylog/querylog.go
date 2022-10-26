@@ -52,6 +52,7 @@ type Config struct {
 	//
 	//    6 * time.Hour
 	//    1 * timeutil.Day
+	//    3 * timeutil.Day
 	//    7 * timeutil.Day
 	//   30 * timeutil.Day
 	//   90 * timeutil.Day
