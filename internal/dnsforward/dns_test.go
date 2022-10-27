@@ -2,13 +2,16 @@ package dnsforward
 
 import (
 	"net"
+	"net/netip"
 	"testing"
 
+	"github.com/AdguardTeam/AdGuardHome/internal/aghalg"
 	"github.com/AdguardTeam/AdGuardHome/internal/aghtest"
 	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/dnsproxy/upstream"
 	"github.com/AdguardTeam/golibs/netutil"
+	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/miekg/dns"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -230,12 +233,11 @@ func TestServer_ProcessDetermineLocal(t *testing.T) {
 }
 
 func TestServer_ProcessDHCPHosts_localRestriction(t *testing.T) {
-	knownIP := net.IP{1, 2, 3, 4}
-
+	knownIP := netip.MustParseAddr("1.2.3.4")
 	testCases := []struct {
 		name       string
 		host       string
-		wantIP     net.IP
+		wantIP     netip.Addr
 		wantRes    resultCode
 		isLocalCli bool
 	}{{
@@ -247,19 +249,19 @@ func TestServer_ProcessDHCPHosts_localRestriction(t *testing.T) {
 	}, {
 		name:       "local_client_unknown_host",
 		host:       "wronghost.lan",
-		wantIP:     nil,
+		wantIP:     netip.Addr{},
 		wantRes:    resultCodeSuccess,
 		isLocalCli: true,
 	}, {
 		name:       "external_client_known_host",
 		host:       "example.lan",
-		wantIP:     nil,
+		wantIP:     netip.Addr{},
 		wantRes:    resultCodeFinish,
 		isLocalCli: false,
 	}, {
 		name:       "external_client_unknown_host",
 		host:       "wronghost.lan",
-		wantIP:     nil,
+		wantIP:     netip.Addr{},
 		wantRes:    resultCodeFinish,
 		isLocalCli: false,
 	}}
@@ -304,7 +306,7 @@ func TestServer_ProcessDHCPHosts_localRestriction(t *testing.T) {
 				return
 			}
 
-			if tc.wantIP == nil {
+			if tc.wantIP == (netip.Addr{}) {
 				assert.Nil(t, pctx.Res)
 			} else {
 				require.NotNil(t, pctx.Res)
@@ -312,7 +314,12 @@ func TestServer_ProcessDHCPHosts_localRestriction(t *testing.T) {
 				ans := pctx.Res.Answer
 				require.Len(t, ans, 1)
 
-				assert.Equal(t, tc.wantIP, ans[0].(*dns.A).A)
+				a := testutil.RequireTypeAssert[*dns.A](t, ans[0])
+
+				ip, err := netutil.IPToAddr(a.A, netutil.AddrFamilyIPv4)
+				require.NoError(t, err)
+
+				assert.Equal(t, tc.wantIP, ip)
 			}
 		})
 	}
@@ -324,26 +331,26 @@ func TestServer_ProcessDHCPHosts(t *testing.T) {
 		examplelan = "example." + defaultLocalDomainSuffix
 	)
 
-	knownIP := net.IP{1, 2, 3, 4}
+	knownIP := netip.MustParseAddr("1.2.3.4")
 	testCases := []struct {
 		name    string
 		host    string
 		suffix  string
-		wantIP  net.IP
+		wantIP  netip.Addr
 		wantRes resultCode
 		qtyp    uint16
 	}{{
 		name:    "success_external",
 		host:    examplecom,
 		suffix:  defaultLocalDomainSuffix,
-		wantIP:  nil,
+		wantIP:  netip.Addr{},
 		wantRes: resultCodeSuccess,
 		qtyp:    dns.TypeA,
 	}, {
 		name:    "success_external_non_a",
 		host:    examplecom,
 		suffix:  defaultLocalDomainSuffix,
-		wantIP:  nil,
+		wantIP:  netip.Addr{},
 		wantRes: resultCodeSuccess,
 		qtyp:    dns.TypeCNAME,
 	}, {
@@ -357,14 +364,14 @@ func TestServer_ProcessDHCPHosts(t *testing.T) {
 		name:    "success_internal_unknown",
 		host:    "example-new.lan",
 		suffix:  defaultLocalDomainSuffix,
-		wantIP:  nil,
+		wantIP:  netip.Addr{},
 		wantRes: resultCodeSuccess,
 		qtyp:    dns.TypeA,
 	}, {
 		name:    "success_internal_aaaa",
 		host:    examplelan,
 		suffix:  defaultLocalDomainSuffix,
-		wantIP:  nil,
+		wantIP:  netip.Addr{},
 		wantRes: resultCodeSuccess,
 		qtyp:    dns.TypeAAAA,
 	}, {
@@ -423,7 +430,7 @@ func TestServer_ProcessDHCPHosts(t *testing.T) {
 
 				ans := pctx.Res.Answer
 				require.Len(t, ans, 0)
-			} else if tc.wantIP == nil {
+			} else if tc.wantIP == (netip.Addr{}) {
 				assert.Nil(t, pctx.Res)
 			} else {
 				require.NotNil(t, pctx.Res)
@@ -431,19 +438,39 @@ func TestServer_ProcessDHCPHosts(t *testing.T) {
 				ans := pctx.Res.Answer
 				require.Len(t, ans, 1)
 
-				assert.Equal(t, tc.wantIP, ans[0].(*dns.A).A)
+				a := testutil.RequireTypeAssert[*dns.A](t, ans[0])
+
+				ip, err := netutil.IPToAddr(a.A, netutil.AddrFamilyIPv4)
+				require.NoError(t, err)
+
+				assert.Equal(t, tc.wantIP, ip)
 			}
 		})
 	}
 }
 
 func TestServer_ProcessRestrictLocal(t *testing.T) {
-	ups := &aghtest.Upstream{
-		Reverse: map[string][]string{
-			"251.252.253.254.in-addr.arpa.": {"host1.example.net."},
-			"1.1.168.192.in-addr.arpa.":     {"some.local-client."},
+	const (
+		extPTRQuestion = "251.252.253.254.in-addr.arpa."
+		extPTRAnswer   = "host1.example.net."
+		intPTRQuestion = "1.1.168.192.in-addr.arpa."
+		intPTRAnswer   = "some.local-client."
+	)
+
+	ups := &aghtest.UpstreamMock{
+		OnAddress: func() (addr string) { return "upstream.example" },
+		OnExchange: func(req *dns.Msg) (resp *dns.Msg, err error) {
+			resp = aghalg.Coalesce(
+				aghtest.RespondTo(t, req, dns.ClassINET, dns.TypePTR, extPTRQuestion, extPTRAnswer),
+				aghtest.RespondTo(t, req, dns.ClassINET, dns.TypePTR, intPTRQuestion, intPTRAnswer),
+				new(dns.Msg).SetRcode(req, dns.RcodeNameError),
+			)
+
+			return resp, nil
 		},
+		OnClose: func() (err error) { return nil },
 	}
+
 	s := createTestServer(t, &filtering.Config{}, ServerConfig{
 		UDPListenAddrs: []*net.UDPAddr{{}},
 		TCPListenAddrs: []*net.TCPAddr{{}},
@@ -513,14 +540,26 @@ func TestServer_ProcessLocalPTR_usingResolvers(t *testing.T) {
 	const locDomain = "some.local."
 	const reqAddr = "1.1.168.192.in-addr.arpa."
 
-	s := createTestServer(t, &filtering.Config{}, ServerConfig{
-		UDPListenAddrs: []*net.UDPAddr{{}},
-		TCPListenAddrs: []*net.TCPAddr{{}},
-	}, &aghtest.Upstream{
-		Reverse: map[string][]string{
-			reqAddr: {locDomain},
+	s := createTestServer(
+		t,
+		&filtering.Config{},
+		ServerConfig{
+			UDPListenAddrs: []*net.UDPAddr{{}},
+			TCPListenAddrs: []*net.TCPAddr{{}},
 		},
-	})
+		&aghtest.UpstreamMock{
+			OnAddress: func() (addr string) { return "upstream.example" },
+			OnExchange: func(req *dns.Msg) (resp *dns.Msg, err error) {
+				resp = aghalg.Coalesce(
+					aghtest.RespondTo(t, req, dns.ClassINET, dns.TypePTR, reqAddr, locDomain),
+					new(dns.Msg).SetRcode(req, dns.RcodeNameError),
+				)
+
+				return resp, nil
+			},
+			OnClose: func() (err error) { return nil },
+		},
+	)
 
 	var proxyCtx *proxy.DNSContext
 	var dnsCtx *dnsContext
