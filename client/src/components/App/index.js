@@ -5,6 +5,7 @@ import { hot } from 'react-hot-loader/root';
 
 import 'react-table/react-table.css';
 import '../ui/Tabler.css';
+import '../ui/Tabler-Amoled.css';
 import '../ui/ReactTable.css';
 import './index.css';
 
@@ -14,8 +15,8 @@ import propTypes from 'prop-types';
 import Toasts from '../Toasts';
 import Footer from '../ui/Footer';
 import Status from '../ui/Status';
-import UpdateTopline from '../ui/UpdateTopline';
-import UpdateOverlay from '../ui/UpdateOverlay';
+// import UpdateTopline from '../ui/UpdateTopline';
+// import UpdateOverlay from '../ui/UpdateOverlay';
 import EncryptionTopline from '../ui/EncryptionTopline';
 import Icons from '../ui/Icons';
 import i18n from '../../i18n';
@@ -107,7 +108,7 @@ const App = () => {
     const {
         language,
         isCoreRunning,
-        isUpdateAvailable,
+        // isUpdateAvailable,
         processing,
     } = useSelector((state) => state.dashboard, shallowEqual);
 
@@ -115,7 +116,7 @@ const App = () => {
         state,
     ) => state.encryption, shallowEqual);
 
-    const updateAvailable = isCoreRunning && isUpdateAvailable;
+    // const updateAvailable = isCoreRunning && isUpdateAvailable;
 
     useEffect(() => {
         dispatch(getDnsStatus());
@@ -143,10 +144,10 @@ const App = () => {
     };
 
     return <HashRouter hashType="noslash">
-        {updateAvailable && <>
+        {/* {updateAvailable && <>
             <UpdateTopline />
             <UpdateOverlay />
-        </>}
+        </>} */}
         {!processingEncryption && <EncryptionTopline />}
         <LoadingBar className="loading-bar" updateTime={1000} />
         <Header />

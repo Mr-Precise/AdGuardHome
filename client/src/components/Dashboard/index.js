@@ -50,7 +50,7 @@ const Dashboard = ({
     const buttonText = protectionEnabled ? 'disable_protection' : 'enable_protection';
 
     const buttonClass = classNames('btn btn-sm dashboard-title__button', {
-        'btn-gray': protectionEnabled,
+        'btn-outline-danger': protectionEnabled,
         'btn-success': !protectionEnabled,
     });
 

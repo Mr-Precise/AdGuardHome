@@ -12,6 +12,7 @@ import Form from './Form';
 
 import './Login.css';
 import '../../components/ui/Tabler.css';
+import '../../components/ui/Tabler-Amoled.css';
 
 class Login extends Component {
     state = {

@@ -4,7 +4,7 @@ import { shallowEqual, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import classnames from 'classnames';
 import Menu from './Menu';
-import logo from '../ui/svg/logo.svg';
+import logo from '../ui/svg/logo-amoled-ui.svg';
 import './Header.css';
 
 const Header = () => {
