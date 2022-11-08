@@ -15,8 +15,46 @@ and this project adheres to
 ## [v0.108.0] - TBA (APPROX.)
 -->
 
-## Added
 
+
+<!--
+## [v0.107.19] - 2022-11-23 (APPROX.)
+
+See also the [v0.107.19 GitHub milestone][ms-v0.107.19].
+
+[ms-v0.107.19]: https://github.com/AdguardTeam/AdGuardHome/milestone/55?closed=1
+-->
+
+
+
+## [v0.107.18] - 2022-11-08
+
+See also the [v0.107.18 GitHub milestone][ms-v0.107.18].
+
+### Fixed
+
+- Crash on some systems when domains from system hosts files are processed
+  ([#5089]).
+
+[#5089]: https://github.com/AdguardTeam/AdGuardHome/issues/5089
+
+[ms-v0.107.18]: https://github.com/AdguardTeam/AdGuardHome/milestone/54?closed=1
+
+
+
+## [v0.107.17] - 2022-11-02
+
+See also the [v0.107.17 GitHub milestone][ms-v0.107.17].
+
+### Security
+
+- Go version has been updated to prevent the possibility of exploiting the
+  CVE-2022-41716 Go vulnerability fixed in [Go 1.18.8][go-1.18.8].
+
+### Added
+
+- The warning message when adding a certificate having no IP addresses
+  ([#4898]).
 - Several new blockable services ([#3972]).  Those will now be more in sync with
   the services that are already blockable in AdGuard DNS.
 - A new HTTP API, `GET /control/blocked_services/all`, that lists all available
@@ -30,6 +68,8 @@ and this project adheres to
 
 ### Changed
 
+- DNS-over-TLS resolvers aren't returned anymore when the configured TLS
+  certificate contains no IP addresses ([#4927]).
 - Responses with `SERVFAIL` code are now cached for at least 30 seconds.
 
 ### Deprecated
@@ -40,7 +80,7 @@ and this project adheres to
 ### Fixed
 
 - ClientIDs not working when using DNS-over-HTTPS with HTTP/3.
-- Editing an enabled rule list's URL now also includes validation of the filter
+- Editing the URL of an enabled rule list also includes validation of the filter
   contents preventing from saving a bad one ([#4916]).
 - The default value of `dns.cache_size` accidentally set to 0 has now been
   reverted to 4 MiB ([#5010]).
@@ -51,6 +91,7 @@ and this project adheres to
 [#2926]: https://github.com/AdguardTeam/AdGuardHome/issues/2926
 [#3418]: https://github.com/AdguardTeam/AdGuardHome/issues/3418
 [#3972]: https://github.com/AdguardTeam/AdGuardHome/issues/3972
+[#4898]: https://github.com/AdguardTeam/AdGuardHome/issues/4898
 [#4916]: https://github.com/AdguardTeam/AdGuardHome/issues/4916
 [#4925]: https://github.com/AdguardTeam/AdGuardHome/issues/4925
 [#4942]: https://github.com/AdguardTeam/AdGuardHome/issues/4942
@@ -59,17 +100,9 @@ and this project adheres to
 [#4993]: https://github.com/AdguardTeam/AdGuardHome/issues/4993
 [#5010]: https://github.com/AdguardTeam/AdGuardHome/issues/5010
 
-[clientid]: https://github.com/AdguardTeam/AdGuardHome/wiki/Clients#clientid
-
-
-
-<!--
-## [v0.107.17] - 2022-11-02 (APPROX.)
-
-See also the [v0.107.17 GitHub milestone][ms-v0.107.17].
-
-[ms-v0.107.17]: https://github.com/AdguardTeam/AdGuardHome/milestone/52?closed=1
--->
+[clientid]:     https://github.com/AdguardTeam/AdGuardHome/wiki/Clients#clientid
+[go-1.18.8]:    https://groups.google.com/g/golang-announce/c/mbHY1UY3BaM
+[ms-v0.107.17]: https://github.com/AdguardTeam/AdGuardHome/milestone/53?closed=1
 
 
 
@@ -78,7 +111,7 @@ See also the [v0.107.17 GitHub milestone][ms-v0.107.17].
 This is a security update.  There is no GitHub milestone, since no GitHub issues
 were resolved.
 
-## Security
+### Security
 
 - Go version has been updated to prevent the possibility of exploiting the
   CVE-2022-2879, CVE-2022-2880, and CVE-2022-41715 Go vulnerabilities fixed in
@@ -812,7 +845,7 @@ See also the [v0.107.0 GitHub milestone][ms-v0.107.0].
 - Query log search now supports internationalized domains ([#3012]).
 - Internationalized domains are now shown decoded in the query log with the
   original encoded version shown in request details ([#3013]).
-- When /etc/hosts-type rules have several IPs for one host, all IPs are now
+- When `/etc/hosts`-type rules have several IPs for one host, all IPs are now
   returned instead of only the first one ([#1381]).
 - Property `rlimit_nofile` is now in the `os` object of the configuration
   file, together with the new `group` and `user` properties ([#2763]).
@@ -1070,7 +1103,7 @@ See also the [v0.106.0 GitHub milestone][ms-v0.106.0].
 - Hostname uniqueness validation in the DHCP server ([#2952]).
 - Hostname generating for DHCP clients which don't provide their own ([#2723]).
 - New flag `--no-etc-hosts` to disable client domain name lookups in the
-  operating system's /etc/hosts files ([#1947]).
+  operating system's `/etc/hosts` files ([#1947]).
 - The ability to set up custom upstreams to resolve PTR queries for local
   addresses and to disable the automatic resolving of clients' addresses
   ([#2704]).
@@ -1387,11 +1420,13 @@ See also the [v0.104.2 GitHub milestone][ms-v0.104.2].
 
 
 <!--
-[Unreleased]: https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.17...HEAD
-[v0.107.17]:  https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.16...v0.107.17
+[Unreleased]: https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.19...HEAD
+[v0.107.19]:  https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.18...v0.107.19
 -->
 
-[Unreleased]: https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.16...HEAD
+[Unreleased]: https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.18...HEAD
+[v0.107.18]:  https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.17...v0.107.18
+[v0.107.17]:  https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.16...v0.107.17
 [v0.107.16]:  https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.15...v0.107.16
 [v0.107.15]:  https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.14...v0.107.15
 [v0.107.14]:  https://github.com/AdguardTeam/AdGuardHome/compare/v0.107.13...v0.107.14
