@@ -305,10 +305,10 @@ small, .small {
     background-position: right 10px top 55% !important;
 }
 
-.ReactModal__Content--after-open {
+/* .ReactModal__Content--after-open {
     border: 1px solid rgb(70, 70, 70) !important;
     background: rgb(10, 10, 10) none repeat scroll 0% 0% !important;
-}
+} */
 
 /* Tabler - Elements Patch */
 
